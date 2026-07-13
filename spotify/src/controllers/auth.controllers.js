@@ -37,6 +37,7 @@ async function registerUser(req, res) {
     role: user.role,
   };
 
+  res.cookie("token", token, { httpOnly: true });
   return res.status(201).json({ user: userResponse, token });
 }
 
@@ -52,6 +53,10 @@ async function loginUser(req, res) {
 
   const isPassValid = await bcrypt.compare(password, user.password);
 
+  if (!isPassValid) {
+    return res.status(401).json({ message: "invalid credentials" });
+  }
+
   const token = jwt.sign(
     {
       id: user._id,
@@ -60,6 +65,7 @@ async function loginUser(req, res) {
     process.env.JWT_SECRET,
   );
 
+  res.cookie("token", token);
   res.status(200).json({
     message: "login success",
     user: {
@@ -68,7 +74,13 @@ async function loginUser(req, res) {
       email: user.email,
       role: user.role,
     },
+    token,
   });
 }
 
-module.exports = { registerUser, loginUser };
+async function logoutUser(req, res) {
+  res.clearCookie("token");
+  return res.status(200).json({ message: "loged out" });
+}
+
+module.exports = { registerUser, loginUser, logoutUser };

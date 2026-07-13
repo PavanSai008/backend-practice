@@ -1,12 +1,14 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const cookieParser = require("cookie-parser");
 const authRoute = require("./routes/auth.routes");
 const musicRoute = require("./routes/music.routes");
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 app.use("/api/auth", authRoute);
-app.use("/api/auth", musicRoute);
+app.use("/api/music", musicRoute);
 
 module.exports = app;
